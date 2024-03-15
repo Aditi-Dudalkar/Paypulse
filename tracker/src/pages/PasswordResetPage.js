@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 function PasswordResetPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -35,6 +37,7 @@ function PasswordResetPage() {
         title: 'Success',
         text: 'Password reset successful!',
       });
+      navigate('/login');
     } catch (error) {
       setError('Error resetting password');
       console.error('Password reset error:', error);

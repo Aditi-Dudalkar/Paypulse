@@ -1,9 +1,12 @@
 import React from 'react';
-import { RiDeleteBin2Line } from 'react-icons/ri'; // Importing trash icon
+import { RiDeleteBin2Line } from 'react-icons/ri'; 
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom'; 
 
 function DeleteUserAccount() {
+  const navigate = useNavigate();
+
   const handleDeleteUserAccount = async () => {
     if (window.confirm('Are you sure you want to delete your account?')) {
       try {
@@ -16,7 +19,8 @@ function DeleteUserAccount() {
           }
         });
         alert('Your account has been deleted successfully.');
-        console.log('Response:', response.data); // Print response body
+        console.log('Response:', response.data); 
+        navigate('/login');
       } catch (error) {
         console.error('Error deleting user account:', error);
         alert('Error deleting user account.');
