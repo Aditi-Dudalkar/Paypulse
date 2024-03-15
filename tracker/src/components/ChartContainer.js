@@ -8,53 +8,53 @@ const ChartContainer = ({ transactions }) => {
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null); // Ref to store the chart instance
 
-  const fetchData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const decodedToken = jwtDecode(token);
-      const userEmail = decodedToken.sub;
-      const response = await axios.get('http://localhost:8086/api/user/expenses/analysis', {
-        params: {
-          email: userEmail
-        }
-      });
-      setUsername(response.data.username);
-      console.log(username);
-      // Split the response body by lines
-      const lines = response.data.trim().split('\n');
-      lines.shift();
-
-      // Extract category name and percentage spent from each line
-      const dataArray = lines.map(line => {
-        const [category, percentage] = line.split(':');
-        return { category: category.trim(), percentageSpent: parseFloat(percentage) }; // Convert percentage to float
-      });
-
-      return dataArray;
-    } catch (error) {
-      console.error('Error fetching analysis data:', error);
-      return [];
-    }
-  };
-
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const decodedToken = jwtDecode(token);
+        const userEmail = decodedToken.sub;
+        const response = await axios.get('http://localhost:8086/api/user/expenses/analysis', {
+          params: {
+            email: userEmail
+          }
+        });
+        setUsername(response.data.username);
+        console.log(username);
+        // Split the response body by lines
+        const lines = response.data.trim().split('\n');
+        lines.shift();
+  
+        // Extract category name and percentage spent from each line
+        const dataArray = lines.map(line => {
+          const [category, percentage] = line.split(':');
+          return { category: category.trim(), percentageSpent: parseFloat(percentage) }; // Convert percentage to float
+        });
+  
+        return dataArray;
+      } catch (error) {
+        console.error('Error fetching analysis data:', error);
+        return [];
+      }
+    };
+  
     const renderChart = async () => {
       const analysisData = await fetchData();
       if (!Array.isArray(analysisData)) {
         console.error('Analysis data is not an array.');
         return;
       }
-
+  
       const ctx = chartRef.current.getContext('2d');
-
+  
       const labels = analysisData.map(item => item.category);
       const percentages = analysisData.map(item => item.percentageSpent);
-
+  
       // Destroy previous chart instance if exists
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
-
+  
       chartInstanceRef.current = new Chart(ctx, {
         type: 'pie',
         data: {
@@ -78,17 +78,17 @@ const ChartContainer = ({ transactions }) => {
         }
       });
     };
-
+  
     renderChart();
-
+  
     // Clean up function to destroy the chart instance when component unmounts
     return () => {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
     };
-  }, [transactions]);
-
+  }, [transactions, username]); // Add 'username' to the dependency array
+  
   return (
     <div className="chart-container">
       <canvas ref={chartRef}></canvas>
