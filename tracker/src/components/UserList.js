@@ -41,7 +41,6 @@ function UserList() {
                       <tr key={expense.id}>
                         <td>{expense.category}</td>
                         <td>{expense.amount}</td>
-                        {/* <td>{expense.expenseDate}</td> */}
                         <td>{new Date(expense.expenseDate).toLocaleDateString()}</td>
                       </tr>
                     ))}
