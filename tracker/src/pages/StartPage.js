@@ -9,7 +9,7 @@ function StartPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate('/login');
-    }, 2000); // Redirect after 2 seconds
+    }, 3000); // Redirect after 3 seconds
 
     return () => clearTimeout(timer); // Cleanup the timer on unmount
   }, [navigate]);
