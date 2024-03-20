@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Import jwtDecode library
-import Chart from 'chart.js/auto'; // Import Chart.js library
-import ChartTypeDropdown from './ChartTypeDropdown'; // Import the ChartTypeDropdown component
+import { jwtDecode } from 'jwt-decode';
+import Chart from 'chart.js/auto'; 
+import ChartTypeDropdown from './ChartTypeDropdown'; 
 
 const ExpensesByDateRange = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [expenses, setExpenses] = useState([]);
-  const [chartData, setChartData] = useState(null); // State for chart data
-  const [chartType, setChartType] = useState('line'); // Default chart type is line
+  const [chartData, setChartData] = useState(null); 
+  const [chartType, setChartType] = useState('line'); 
 
   const getToken = () => {
     return localStorage.getItem('token');
@@ -26,9 +26,9 @@ const ExpensesByDateRange = () => {
 
       const response = await axios.get('http://localhost:8086/api/user/expensesByDateRange', {
         params: {
-          email: userEmail, // Pass email as parameter
-          startDate: isoStartDate, // Use isoStartDate here
-          endDate: isoEndDate // Use isoEndDate here
+          email: userEmail, 
+          startDate: isoStartDate, 
+          endDate: isoEndDate 
         },
       });
       setExpenses(response.data);
@@ -52,7 +52,7 @@ const ExpensesByDateRange = () => {
     if (chartData) {
       renderChart();
     }
-  }, [chartData, chartType]); // Run this effect whenever chartData or chartType changes
+  }, [chartData, chartType]); 
 
   const renderChart = () => {
     const ctx = document.getElementById('expenseChart');
@@ -65,7 +65,7 @@ const ExpensesByDateRange = () => {
     const customColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF8A80', '#A1887F', '#4DD0E1', '#FF5722', '#009688', '#FF1744', '#00E676', '#FF4081', '#18FFFF', '#651FFF', '#FF6E40', '#FFD740', '#7C4DFF', '#1DE9B6', '#C51162', '#FF5252', '#2962FF', '#FFD740', '#64DD17', '#FFAB00', '#FF1744', '#00B8D4', '#FF6D00', '#FFEA00', '#00C853'];
   
     new Chart(ctx, {
-      type: chartType, // Use chartType state here
+      type: chartType,
       data: {
         labels: chartData.map(data => data.category),
         datasets: [{
@@ -117,13 +117,13 @@ const ExpensesByDateRange = () => {
         <div className="col-md-2">
           <ChartTypeDropdown onChange={handleChartTypeChange} />
         </div>
-        <div className="col-md-2 mt-4 pt-4"> {/* Adjusted margin-top */}
+        <div className="col-md-2 mt-4 pt-4"> 
           <button type="submit" className="btn btn-primary">Get Expenses</button>
         </div>
       </form>
       <div className="mt-4 expenses-list">
         <h5>Expenses:</h5>
-          <ul className="list-group">
+          <ul className="list-group" style={{ maxHeight: 'calc(30vh - 40px)', overflowY: 'auto' }}>
             {expenses.map((expense, index) => (
               <li key={index} className="list-group-item">
                 <div className="d-flex justify-content-between align-items-center">
