@@ -1,6 +1,5 @@
 package com.example.capstone.expense.repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
