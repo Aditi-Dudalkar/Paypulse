@@ -1,9 +1,9 @@
 package com.example.capstone.expense.controller;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,23 +18,22 @@ import com.example.capstone.expense.dto.ResetPasswordRequest;
 import com.example.capstone.expense.dto.SalaryRequest;
 import com.example.capstone.expense.model.User;
 import com.example.capstone.expense.repository.UserRepository;
-import com.example.capstone.expense.security.JwtSecretKeyGenerator;
+import com.example.capstone.expense.security.JwtUtil;
 import com.example.capstone.expense.security.PasswordHashing;
-
-// import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 @RestController
 @RequestMapping("/api")
 public class UserController {
-    
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
     private final UserRepository userRepository;
 
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-    
+
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody User newUser) {
         // Check if user with the same email already exists
@@ -61,46 +60,25 @@ public class UserController {
         userRepository.save(newUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
-    }   
+    }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User loginUser) {
-        // Admin Login
-        // if ("admin@email.com".equals(loginUser.getEmail()) && "admin".equals(loginUser.getPassword())) {
-        //     return ResponseEntity.ok("Admin login successful");
-        // }
-    
         // Find the user by email
         User existingUser = userRepository.findByEmail(loginUser.getEmail());
-        if (existingUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
-        }
-
-        // Verify the password
-        if (!PasswordHashing.verifyPassword(loginUser.getPassword(), existingUser.getPassword())) {
+        if (existingUser == null
+                || !PasswordHashing.verifyPassword(loginUser.getPassword(), existingUser.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
 
         // Generate JWT token
-        String token = generateJwtToken(existingUser.getEmail());
+        String token = jwtUtil.generateToken(existingUser.getEmail());
 
-        // Authentication successful
+        // Return token in response
         return ResponseEntity.ok().body(token);
     }
 
-    // Generate JWT token
-    @SuppressWarnings("deprecation")
-    private String generateJwtToken(String userEmail) {
-        String secretKey = JwtSecretKeyGenerator.generateSecretKey();
-        String token = Jwts.builder()
-            .setSubject(userEmail)
-            .signWith(SignatureAlgorithm.HS256, secretKey)
-            .compact();
-        System.out.println("GENERATED JWT TOKEN: " + token); 
-        return token;
-    }
-
-    //Reset password
+    // Reset password
     @PostMapping("/user/resetPassword")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
         // Check if new password matches confirm password
@@ -148,7 +126,7 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        
+
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
@@ -159,10 +137,10 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-    
+
         // Get the balance of the user
         BigDecimal balance = user.getBalance();
-    
+
         return ResponseEntity.status(HttpStatus.OK).body(balance);
     }
 
@@ -172,9 +150,9 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
-        
+
         userRepository.delete(user);
-        
+
         return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully");
     }
 }
